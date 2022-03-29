@@ -1,4 +1,4 @@
-п»ї#include <windows.h>
+#include <windows.h>
 #include <gl/gl.h>
 
 #pragma comment (lib, "opengl32.lib")
@@ -9,18 +9,18 @@ void EnableOpenGL(HWND, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 
-// С‚РѕС‡РєР° РІС…РѕРґР° РґР»СЏ РіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ Windows
+// точка входа для графического приложения Windows
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    WNDCLASSEX wc;      // WNDCLASSEX (window class) вЂ“ РєР»Р°СЃСЃ РѕРєРЅР°
-    HWND hwnd;          // HWND (handle to the window) вЂ“ РґРµСЃРєСЂРёРїС‚РѕСЂ РѕРєРЅР° (РїСЂРѕРіСЂР°РјРјР° СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РѕРєРЅРѕ СЃ РїРѕРјРѕС‰СЊСЋ РґРµСЃРєСЂРёРїС‚РѕСЂРѕРІ, СЌС‚Рѕ РїСЂРѕСЃС‚Рѕ С‡РёСЃР»Рѕ, РєРѕС‚РѕСЂРѕРµ РћРЎ РёСЃРїРѕР»СЊР·СѓРµС‚ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РѕР±СЉРµРєС‚Р°)
-    HDC hdc;            // HDC (handle to the document context) вЂ“ РґРµСЃРєСЂРёРїС‚РѕСЂ РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР° (СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РЅР°Р±РѕСЂ Р·РЅР°С‡РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РїСЂРёР»РѕР¶РµРЅРёРµ РёСЃРїРѕР»СЊР·СѓРµС‚ РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ РІ РєР»РёРµРЅС‚СЃРєРѕР№ РѕР±Р»Р°СЃС‚Рё РѕРєРЅР°)
-    HGLRC hrc;          // HGLRC (handle to the GL rendering context) вЂ“ РґРµСЃРєСЂРёРїС‚РѕСЂ РєРѕРЅС‚РµРєСЃС‚Р° РѕС‚СЂРёСЃРѕРІРєРё OpenGL
-    MSG msg;            // MSG (message) вЂ“ СЃРѕРґРµСЂР¶РёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРѕРѕР±С‰РµРЅРёСЏС… РёР· РѕС‡РµСЂРµРґРё СЃРѕРѕР±С‰РµРЅРёР№ РїРѕС‚РѕРєР°
+    WNDCLASS wc;                        // WNDCLASS (window class) – класс окна
+    HWND hwnd;                          // HWND (handle to the window) – дескриптор окна (дескриптор – определенное число, которое ОС использует для идентификации объектов)
+    MSG msg;                            // MSG (message) – содержит информацию о сообщениях из очереди сообщений потока
+    LPCWSTR className = L"className";   // LPCWSTR (long pointer to const wide string) – константная строка расширенных символов кодировки Unicode
+    HDC hdc;                            // HDC (handle to the document context) – дескриптор контекста устройства (специальный набор значений, которые приложение использует для рисования в клиентской области окна)
+    HGLRC hrc;                          // HGLRC (handle to the GL rendering context) – дескриптор контекста отрисовки OpenGL
 
 
-    // СЂРµРіРµСЃС‚СЂРёСЂСѓРµРј РєР»Р°СЃСЃ РѕРєРЅР°
-    wc.cbSize = sizeof(WNDCLASSEX);
+    // регестрируем класс окна
     wc.style = CS_OWNDC;
     wc.lpfnWndProc = WindowProc;
     wc.cbClsExtra = 0;
@@ -30,22 +30,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.hCursor = NULL;
     wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
-    wc.lpszClassName = L"СЃlassName";
-    wc.hIconSm = NULL;
+    wc.lpszClassName = className;
 
-    RegisterClassEx(&wc);
+    RegisterClass(&wc);
 
-
-    // СЃРѕР·РґР°РµРј РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ
-    hwnd = CreateWindowEx(
-        0,
-        L"СЃlassName",
-        L"Hello OpenGL",
+    // создаем главное окно
+    hwnd = CreateWindow(
+        className,
+        L"OpenGL Start Window",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        256,
-        256,
+        400,
+        400,
         NULL,
         NULL,
         hInstance,
@@ -54,71 +51,99 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     if (!hwnd) return 1;
 
+    // показываем окно
+    ShowWindow(hwnd, SW_SHOWNORMAL);
 
-    // РїРѕРєР°Р·С‹РІР°РµРј РѕРєРЅРѕ
-    ShowWindow(hwnd, nCmdShow);
-
-    // РїРѕРґРєР»СЋС‡Р°РµРј OpenGL Рє РѕРєРЅСѓ
+    // подключаем OpenGL к окну
     EnableOpenGL(hwnd, &hdc, &hrc);
 
 
-    // РѕСЃРЅРѕРІРЅРѕР№ С†РёРєР» РїСЂРѕРіСЂР°РјРјС‹
-    float angle = 0.0f;
+    // основной цикл программы
+    GLfloat angle = 0.0F;
 
     while (TRUE)
     {
-        // РїСЂРѕРІРµСЂРєР° СЃРѕРѕР±С‰РµРЅРёСЏ
+        // проверка сообщения
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
-            // РѕС‚РїСЂР°РІРєР° РёР»Рё РѕР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ
-            TranslateMessage(&msg); // РїРµСЂРµРІРѕРґРёС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РІРёСЂС‚СѓР°Р»СЊРЅС‹С… РєР»Р°РІРёС€ РІ СЃРёРјРІРѕР»СЊРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ
-            DispatchMessage(&msg); // РѕС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂРµ WindowProc()
+            // отправка или обработка сообщения
+            TranslateMessage(&msg); // переводит сообщения виртуальных клавиш в символьные сообщения
+            DispatchMessage(&msg); // отправляет сообщение оконной процедуре WindowProc()
 
-            if (msg.message == WM_QUIT) break;
+            if (msg.message == WM_QUIT)
+            {
+                break;
+            }
         }
         else
         {
-            // РѕС‚СЂРёСЃРѕРІРєР° OpenGL
-
+            // отрисовка OpenGL
             glClearColor(0, 0, 0, 0);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glPushMatrix();
-            
+
             glRotatef(angle, 0, 0, 1);
 
             glBegin(GL_TRIANGLES);
-                glColor3f(1, 0, 0); glVertex2f(    0,    1);
-                glColor3f(0, 1, 0); glVertex2f( 0.87, -0.5);
-                glColor3f(0, 0, 1); glVertex2f(-0.87, -0.5);
+            glColor3f(1, 0, 0); glVertex2f(0, 1);
+            glColor3f(0, 1, 0); glVertex2f(0.87, -0.5);
+            glColor3f(0, 0, 1); glVertex2f(-0.87, -0.5);
             glEnd();
 
             glPopMatrix();
 
             SwapBuffers(hdc);
 
-            angle += 1.0f;
-            Sleep(4);
+            angle += 1.0F;
+            Sleep(5);
         }
     }
 
 
-    // РѕС‚РєР»СЋС‡Р°РµРј OpenGL
+    // отключаем OpenGL
     DisableOpenGL(hwnd, hdc, hrc);
 
-    // СѓРЅРёС‡С‚РѕР¶Р°РµРј РѕРєРЅРѕ
+    // уничтожаем окно
     DestroyWindow(hwnd);
 
 
     return 0;
 }
 
-// РѕРєРѕРЅРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР° WindowProc() РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РѕРєРЅР°
+// оконная процедура WindowProc() обрабатывает сообщения окна
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (message == WM_CLOSE) PostQuitMessage(0);
+    if (message == WM_CLOSE)
+    {
+        // в случае закрытия окна отправляем сообщение WM_QUIT в очередь сообщений
+        PostQuitMessage(0);
+    }
+    else if (message == WM_PAINT)
+    {
+        PAINTSTRUCT ps;
+
+        // подготавливает указанное окно к отрисовке и заполняет структуру PAINTSTRUCT информацией об отрисовке
+        HDC hdc = BeginPaint(hwnd, &ps);
+        RECT rc = ps.rcPaint; // координаты прямоугольника для заполнения
+
+        // создает логическую кисть указанного сплошного цвета
+        HBRUSH hb = CreateSolidBrush(
+            RGB(0, 0, 255)
+        );
+
+        // заполняет всю область указанного прямоугольника сплошным цветом
+        FillRect(hdc, &rc, hb);
+
+        // сигнализирует о завершении отрисовки в указанном окне
+        EndPaint(hwnd, &ps);
+
+        // удаляем кисть
+        DeleteObject(hb);
+    }
     else if (message == WM_KEYDOWN)
     {
+        // в случае нажатия клавиши Escape отправляем сообщение WM_QUIT в очередь сообщений
         if (wParam == VK_ESCAPE) PostQuitMessage(0);
     }
 
@@ -127,14 +152,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 
 void EnableOpenGL(HWND hwnd, HDC* hdc, HGLRC* hrc)
 {
-    PIXELFORMATDESCRIPTOR pfd; // pixel format descriptor вЂ“ РґРµСЃРєСЂРёРїС‚РѕСЂ С„РѕСЂРјР°С‚Р° РїРёРєСЃРµР»РµР№
-    int fmt;
+    PIXELFORMATDESCRIPTOR pfd; // pixel format descriptor – дескриптор формата пикселей
+    int pixelFormat;
 
-    // РїРѕР»СѓС‡Р°РµРј РєРѕРЅС‚РµРєСЃС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР°
-    *hdc = GetDC(hwnd); // РёР·РІР»РµРєР°РµС‚ РґРµСЃРєСЂРёРїС‚РѕСЂ РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР° СѓРєР°Р·Р°РЅРЅРѕРіРѕ РѕРєРЅР°
+    // извлекает контекст устройства указанного окна
+    *hdc = GetDC(hwnd);
 
-    // СѓСЃС‚Р°РЅРѕРІР»РёРІР°РµРј С„РѕСЂРјР°С‚ РїРёРєСЃРµР»РµР№ РґР»СЏ РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР°
-    ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR)); // Р·Р°РїРѕР»РЅСЏРµС‚ СѓРєР°Р·Р°РЅРЅС‹Р№ Р±СѓС„РµСЂ РЅСѓР»СЏРјРё
+    // установливаем формат пикселей для контекста устройства
+    ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR)); // заполняет указанный буфер нулями
     pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
@@ -143,17 +168,27 @@ void EnableOpenGL(HWND hwnd, HDC* hdc, HGLRC* hrc)
     pfd.cDepthBits = 16;
     pfd.iLayerType = PFD_MAIN_PLANE;
 
-    fmt = ChoosePixelFormat(*hdc, &pfd); // СЃРѕРїРѕСЃС‚Р°РІР»СЏРµС‚ С„РѕСЂРјР°С‚ РїРёРєСЃРµР»РµР№ РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР° СЃ Р·Р°РґР°РЅРЅС‹Рј С„РѕСЂРјР°С‚РѕРј РїРёРєСЃРµР»РµР№
-    SetPixelFormat(*hdc, fmt, &pfd); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С„РѕСЂРјР°С‚ РїРёРєСЃРµР»РµР№ СѓРєР°Р·Р°РЅРЅРѕРіРѕ РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР°
+    // сопоставляет формат пикселей контекста устройства с заданным форматом пикселей
+    pixelFormat = ChoosePixelFormat(*hdc, &pfd);
 
-    // СЃРѕР·РґР°РµРј Рё РІРєР»СЋС‡Р°РµРј РєРѕРЅС‚РµРєСЃС‚ РѕС‚СЂРёСЃРѕРІРєРё
-    *hrc = wglCreateContext(*hdc); // СЃРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ РєРѕРЅС‚РµРєСЃС‚ РѕС‚СЂРёСЃРѕРІРєРё OpenGL, РїРѕРґС…РѕРґСЏС‰РёР№ РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ РЅР° СѓСЃС‚СЂРѕР№СЃС‚РІРµ, РЅР° РєРѕС‚РѕСЂРѕРµ СЃСЃС‹Р»Р°РµС‚СЃСЏ hdc 
-    wglMakeCurrent(*hdc, *hrc); // РґРµР»Р°РµС‚ СѓРєР°Р·Р°РЅРЅС‹Р№ hrc С‚РµРєСѓС‰РёРј РєРѕРЅС‚РµРєСЃС‚РѕРј РѕС‚СЂРёСЃРѕРІРєРё РІС‹Р·С‹РІР°СЋС‰РµРіРѕ РїРѕС‚РѕРєР°
+    // устанавливает формат пикселей для указанного контекста устройства
+    SetPixelFormat(*hdc, pixelFormat, &pfd);
+
+    // создает новый контекст отрисовки OpenGL, подходящий для рисования на устройстве, на которое ссылается hdc 
+    *hrc = wglCreateContext(*hdc);
+
+    // делает указанный hrc текущим контекстом отрисовки вызывающего потока
+    wglMakeCurrent(*hdc, *hrc);
 }
 
 void DisableOpenGL(HWND hwnd, HDC hdc, HGLRC hrc)
 {
+    // делаем текущий HGLRC неактуальным и освобождаем контекст устройства, который использовался контекстом рендеринга
     wglMakeCurrent(NULL, NULL);
+
+    // удаляет указанный контекст отрисовки OpenGL
     wglDeleteContext(hrc);
+
+    // освобождает контекст устройства DC заданного окна
     ReleaseDC(hwnd, hdc);
 }
